@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+	<title>U.S. COVID Data</title>
+    <meta charset="utf-8"/>
+    <script>
+	// adapted from Prof. Diorio's demo
+    function getCOVID() {
+			/* Step 1: Make instance of request object...
+			...to make HTTP request after page is loaded*/
+			request = new XMLHttpRequest();
+			console.log("1 - request object created");
+ 
+			// Step 2: Set the URL for the AJAX request to be the JSON file
+		    request.open("GET", "https://covidtrackerapi.bsg.ox.ac.uk/api/v2/stringency/actions/USA/2020-11-08", true)
+
+			console.log("2 - opened request file");
+ 
+			// Step 3: set up event handler/callback
+			request.onreadystatechange = function() {
+				console.log("3 - readystatechange event fired.");
+ 
+				if (request.readyState == 4 && request.status == 200) {
+					// Step 5: wait for done + success
+					console.log("5 - response received");
+					result = request.responseText;
+					usa = JSON.parse(result);
+					
+					document.getElementById("date").innerHTML = usa.stringencyData.date_value; 
+					document.getElementById("confirmed").innerHTML = usa.stringencyData.confirmed; 
+					document.getElementById("deaths").innerHTML = usa.stringencyData.deaths; 
+					var policies = "";
+					
+					for (i = 0; i < usa.policyActions.length; i++) {
+						policies += usa.policyActions[i].policy_type_display;
+						if (i < usa.policyActions.length - 1)
+						 policies += ", "
+					}
+					document.getElementById("policy").innerHTML = policies;
+
+					document.getElementById("apiData").style.display = "block";
+					document.getElementById("data").style.display = "none";
+				}
+				else if (request.readyState == 4 && request.status != 200) {
+					document.getElementById("data").innerHTML = 
+					"Something is wrong!  Check the logs to see where this went off the rails";
+
+				}
+
+				else if (request.readyState == 3) {
+					document.getElementById("data").innerHTML = "Too soon!  Try again";
+				}
+
+			}
+		// Step 4: fire off the HTTP request
+			request.send();
+			console.log("4 - Request sent");
+		}
+	</script>
+
+<style type="text/css">
+	body {
+		margin-left: 30px;
+		margin-right: 30px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		font-size: 16px;
+		line-height: 1.5;
+	}
+	label {
+		font-weight: bold;
+	}
+	#apiData {
+		margin-left: auto;
+		margin-right: auto;
+		width: 70%;
+		background-color: #7cc0ff;
+	}
+</style>
+</head>
+
+
+<body onload="getCOVID()">
+	<h1 style="text-align: center;">U.S. COVID Data</h1>
+	<div id="data" style="text-align: center;">Loading...</div>
+
+	<div id="apiData" style="display: none; text-align: center;"> 
+		<label>Date: </label><div id='date'></div><br />
+		<label>Confirmed Cases: </label><div id='confirmed'></div><br />
+		<label>Deaths: </label><div id='deaths'></div><br />
+		<label>Policy examples:</label><div id='policy'></div>
+	</div>
+	
+	<h2>About the API</h2>
+	<ul>
+		<li><b>Description:</b> The API that I selected can either...
+			<ul>
+				<li>return general COVID data of many countries within a specified
+					time period
+				</li>
+				<li>return more detailed COVID data of a specified country on a
+					specified date, including information about that country's
+					government's policies regarding COVID
+				</li>
+			</ul>
+		</li>
+		<li><b>Source:</b> 
+			<a href="https://covidtracker.bsg.ox.ac.uk/about-api" target="blank">
+				https://covidtracker.bsg.ox.ac.uk/about-api
+			</a>
+		</li>
+		<li><b>Options:</b> The first choice I had to make was if I wanted
+			general data about more countries or specific data about one
+			country. I made this selection by manipulating the API request as
+			outlined in the documentation. I ended up choosing the second 
+			option so I included "actions/USA/2020-11-08" at the end of the 
+			URL. All the other data is accessed by stepping through the JSON
+			object that gets returned, which is well documented. I specifically
+			accessed the 'date_value,' 'confirmed,' 'deaths,' and 
+			'policy_type_display' fields.
+		</li>
+		<li><b>Applications:</b>
+			<ol>
+				<li>This API would be useful for an airline that wants to show
+					their customers that it is safe to travel to the countries
+					that they service (if of course those countries have low
+					rates).
+				</li>
+				<li>This API would also be useful for students in a comparative
+					government class because it would demonstrate how different
+					countries approach a pandemic.
+				</li>
+			</ol>
+		</li>
+	</ul>
+
+</body>
+</html>
